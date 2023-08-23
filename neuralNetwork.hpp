@@ -4,6 +4,7 @@
 #include <iostream> // To output results to console
 #include "pbPlots.hpp"
 #include "supportLib.hpp"
+#include "vectors.hpp"
 
 double randZeroToOne();
 void display(std::vector<double> t);
@@ -21,6 +22,7 @@ public:
     NeuralNetwork(int inputCount, int outputCount, std::vector<int> hiddenLayers);
     std::vector<double> forward(std::vector<double> X);
     void backward(std::vector<double> data, std::vector<double> output, std::vector<double> intended);
+    std::vector<double> layer_error();
     std::vector<double> softmax(std::vector<double> X);
     std::vector<double> forward_layer(std::vector<double> X, std::vector<std::vector<double>> w, std::vector<double> b);
     double activation(double x);

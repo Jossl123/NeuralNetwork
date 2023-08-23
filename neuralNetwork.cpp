@@ -64,57 +64,38 @@ std::vector<double> NeuralNetwork::forward(std::vector<double> X){
     for (int i = 0; i < weights.size(); i++)
     {
         current_layer = forward_layer(current_layer, weights[i], bias[i]);
+        if (i<weights.size()-1){
+            for (int j = 0; j < current_layer.size(); j++)
+            {
+                current_layer[j] = activation(current_layer[j]);
+            }
+        }
         prev_outputs[i] = current_layer;   
     }
     return current_layer;
 }
 
-void NeuralNetwork::backward(std::vector<double> data, std::vector<double> output, std::vector<double> intended) {
-    if (output.size() != intended.size()) {
+void NeuralNetwork::backward(std::vector<double> data, std::vector<double> output, std::vector<double> output_intended) {
+    if (output.size() != output_intended.size()) {
         std::cerr << "[ERROR] Output and intended vectors have different sizes\n";
         exit(1);
     }
 
-    // // Calculate the error for the output layer
-    // std::vector<double> error(output.size());
-    // for (int i = 0; i < output.size(); ++i) {
-    //     error[i] = (1./2.) * (intended[i] - output[i])*(intended[i] - output[i]);
+    // for (int layer_index = weights.size()-1; layer_index >= 0; layer_index--)
+    // {
+    //     layer_error(layer_index, output_intended);
     // }
-
-    // // Backpropagate the error through the layers and update weights and biases
-    // for (int i = weights.size() - 1; i >= 0; --i) {
-    //     std::vector<double> prev_output = data;
-    //     if (i != 0) {
-    //         prev_output = prev_outputs[i-1];
-    //     }
-        
-    //     std::vector<double> delta(weights[i][0].size(), 0.0);
-    //     for (int j = 0; j < weights[i].size(); ++j) {
-    //         for (int k = 0; k < weights[i][j].size(); ++k) {
-    //             delta[k] += error[j] * prev_output[k];
-    //             // std::cout << error[j];
-    //             // std::cout <<" -> ";
-    //             // std::cout << weights[i][j][k];
-    //             // std::cout <<" -> ";
-    //             weights[i][j][k] -= learning_rate * delta[k]; // Apply learning rate
-    //             // std::cout << weights[i][j][k];
-    //             // std::cout << "\n";
-    //         }
-    //         bias[i][j] -= learning_rate * error[j]; // Update bias
-    //     }
-
-    //     // Calculate error for the next layer
-    //     error.clear();
-    //     for (int j = 0; j < prev_output.size(); ++j) {
-    //         double sum = 0.0;
-    //         for (int k = 0; k < weights[i].size(); ++k) {
-    //             sum += error[k] * weights[i][k][j];
-    //         }
-    //         error.push_back(sum);
-    //     }
-    // }
+    
+    std::vector<double> dz1 = substract(output, output_intended);
+    float dw1 = dot(dz1,data) / output.size();
+    float db1 = sum(dz1) / output.size();
+    weights[0][0][0] = weights[0][0][0] - 0.1 * dw1;
+    bias[0][0] = bias[0][0] - 0.1 * db1;
 }
 
+std::vector<double> NeuralNetwork::layer_error(){
+
+}
 
 std::vector<double> NeuralNetwork::softmax(std::vector<double> X)
 {
@@ -141,12 +122,7 @@ std::vector<double> NeuralNetwork::forward_layer(std::vector<double> X, std::vec
         }
         next_layer.push_back(n);
     }
-    std::vector<double> res;
-    for (int i = 0; i < next_layer.size(); i++)
-    {
-        res.push_back(activation(next_layer[i]));
-    }
-    return res;
+    return next_layer;
 }
 
 double NeuralNetwork::activation(double x){
@@ -203,20 +179,29 @@ void NeuralNetwork::train(std::vector<std::vector<double>> data, std::vector<std
             std::cout << " :\n";
         }
         double cum_error = 0;
+
+
         for (int j = 0; j < data.size(); j++)
         {
-            std::vector<double> res = forward(data[j]);
+            std::vector<double> input = data[j];
+            std::vector<double> output_intended = intended[j];
+            std::vector<double> output = forward(input);
             if (i %100 == 0){
                 std::cout << "intput : ";
-                display(data[j]);
+                display(input);
                 std::cout << "output : ";
-                display(res);
+                display(output);
                 std::cout << " vs ";
-                display(intended[j]);
+                display(output_intended);
             }
-            backward(data[j], res, intended[j]);
-            cum_error+=fabs(res[0] - intended[j][0]);
+            backward(input, output, output_intended);
+
+            //partial error calculation for graph
+            cum_error+=fabs(output[0] - output_intended[0]);
         }
+
+
+
         y.push_back(cum_error);
     }
     DrawScatterPlot(imageRef, 600, 400, &x, &y, errorMessage);

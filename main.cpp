@@ -16,6 +16,6 @@ int main(int argc, char *argv[]) {
         results.push_back(r);
     }
 
-    network.train(data, results, 100);
+    network.train(data, results, 101);
     return 0;
 }
