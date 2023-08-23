@@ -1,5 +1,6 @@
 #include <vector>
 #include "neuralNetwork.hpp"
+#include "vectors.hpp"
 using namespace std;
 
 int main(int argc, char *argv[]) {
@@ -16,6 +17,7 @@ int main(int argc, char *argv[]) {
         results.push_back(r);
     }
 
-    network.train(data, results, 101);
+    network.train(data, results, 301);
+    
     return 0;
 }

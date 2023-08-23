@@ -80,17 +80,29 @@ void NeuralNetwork::backward(std::vector<double> data, std::vector<double> outpu
         std::cerr << "[ERROR] Output and intended vectors have different sizes\n";
         exit(1);
     }
-
-    // for (int layer_index = weights.size()-1; layer_index >= 0; layer_index--)
-    // {
-    //     layer_error(layer_index, output_intended);
-    // }
+    int m = output.size();
+    std::vector<double> dz = substract(output, output_intended);
+    float dw;
+    float db;
+    for (int layer_index = weights.size()-1; layer_index >= 0; layer_index--)
+    {   
+        if (layer_index == 0){
+            dw = dot(dz,data) / m;
+        }else{
+            //dz = 
+            dw = dot(dz,prev_outputs[layer_index-1]) / m;
+        }
+        db = sum(dz) / m;
+        for (int i = 0; i < weights[layer_index].size(); i++)
+        {
+            for (int j = 0; j < weights[layer_index][i].size(); j++)
+            {
+                weights[layer_index][i][j] = weights[layer_index][i][j] - learning_rate * dw;
+            }
+            bias[layer_index][i] = bias[layer_index][i] - learning_rate * db;
+        }
+    }
     
-    std::vector<double> dz1 = substract(output, output_intended);
-    float dw1 = dot(dz1,data) / output.size();
-    float db1 = sum(dz1) / output.size();
-    weights[0][0][0] = weights[0][0][0] - 0.1 * dw1;
-    bias[0][0] = bias[0][0] - 0.1 * db1;
 }
 
 std::vector<double> NeuralNetwork::layer_error(){
