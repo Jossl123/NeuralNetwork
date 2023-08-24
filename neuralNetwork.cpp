@@ -10,6 +10,7 @@ void display(std::vector<double> t){
         std::cout << ",";
     }
 }
+
 void NeuralNetwork::initialize_network(){
     for (int i = 0; i < weights.size(); i++){
         prev_outputs.push_back(std::vector<double>(1, 0));
@@ -81,32 +82,38 @@ void NeuralNetwork::backward(std::vector<double> data, std::vector<double> outpu
         exit(1);
     }
     int m = output.size();
-    std::vector<double> dz = substract(output, output_intended);
-    float dw;
-    float db;
-    for (int layer_index = weights.size()-1; layer_index >= 0; layer_index--)
-    {   
-        if (layer_index == 0){
-            dw = dot(dz,data) / m;
-        }else{
-            //dz = 
-            dw = dot(dz,prev_outputs[layer_index-1]) / m;
-        }
-        db = sum(dz) / m;
-        for (int i = 0; i < weights[layer_index].size(); i++)
-        {
-            for (int j = 0; j < weights[layer_index][i].size(); j++)
-            {
-                weights[layer_index][i][j] = weights[layer_index][i][j] - learning_rate * dw;
+    std::vector<std::vector<double>> dz = onedTo2d(subtract(output, output_intended));
+    
+    for (int layer_index = weights.size() - 1; layer_index >= 0; layer_index--) {   
+        std::vector<std::vector<double>> dw(weights[layer_index].size(), std::vector<double>(weights[layer_index][0].size(), 0.0));
+        std::vector<double> db(weights[layer_index].size(), 0.0);
+
+        for (int i = 0; i < m; i++) {
+            for (int j = 0; j < weights[layer_index].size(); j++) {
+                for (int k = 0; k < weights[layer_index][j].size(); k++) {
+                    dw[j][k] += dz[i][j] * prev_outputs[layer_index][i] * data[k];
+                }
+                db[j] += dz[i][j];
             }
-            bias[layer_index][i] = bias[layer_index][i] - learning_rate * db;
+        }
+
+        for (int i = 0; i < weights[layer_index].size(); i++) {
+            for (int j = 0; j < weights[layer_index][i].size(); j++) {
+                weights[layer_index][i][j] -= learning_rate * (dw[i][j] / m);
+            }
+            bias[layer_index][i] -= learning_rate * (db[i] / m);
+        }
+
+        if (layer_index > 0) {
+            std::vector<std::vector<double>> a = transpose(weights[layer_index]);
+            dz = multiply(dz, a);
+            for (int i = 0; i < m; i++) {
+                for (int j = 0; j < dz[i].size(); j++) {
+                    dz[i][j] *= derive_activation(prev_outputs[layer_index - 1][i]);
+                }
+            }
         }
     }
-    
-}
-
-std::vector<double> NeuralNetwork::layer_error(){
-
 }
 
 std::vector<double> NeuralNetwork::softmax(std::vector<double> X)
@@ -142,6 +149,11 @@ double NeuralNetwork::activation(double x){
     return x;
     //return 1.0 / (1.0 + exp(-x));
 }
+double NeuralNetwork::derive_activation(double x){
+    if (x < 0)return 0;
+    return 1;
+}
+
 
 void NeuralNetwork::display_network(){
     std::cout << "weights \n";

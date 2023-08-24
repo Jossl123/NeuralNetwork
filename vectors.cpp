@@ -1,5 +1,5 @@
 #include "vectors.hpp"
-std::vector<double> substract(std::vector<double> v1,std::vector<double> v2){
+std::vector<double> subtract(std::vector<double> v1,std::vector<double> v2){
     if (v1.size() != v2.size()) {
         std::cerr << "[ERROR] v1 and v2 vectors have different sizes\n";
         exit(1);
@@ -37,12 +37,8 @@ std::vector<std::vector<double>> multiply(std::vector<std::vector<double>> v1,st
     {
         for (int j = 0; j < v2[0].size(); j++)
         {
-            for (int x = 0; x < v1.size(); x++)
+            for (int x = 0; x < v2.size(); x++)
             {
-                std::cout << i;
-                std::cout << "/";
-                std::cout << j;
-                std::cout << "\n";
                 res[i][j] += v1[i][x] * v2[x][j];
             }
         }
@@ -50,14 +46,18 @@ std::vector<std::vector<double>> multiply(std::vector<std::vector<double>> v1,st
     return res;
 }
 std::vector<std::vector<double>> transpose(std::vector<std::vector<double>> v){
-    std::vector<std::vector<double>> res(v.size());
-    for (int i = 0; i < v.size(); i++)
+    std::vector<std::vector<double>> res(v[0].size());
+    for (int i = 0; i < v[0].size(); i++)
     {
-        res[i] = std::vector<double>(v[i].size());
-        for (int j = 0; j < v[i].size(); j++)
+        res[i] = std::vector<double>(v.size());
+        for (int j = 0; j < v.size(); j++)
         {
             res[i][j] = v[j][i];
         }
     }
     return res;
+}
+
+std::vector<std::vector<double>> onedTo2d(std::vector<double> v){
+    return std::vector<std::vector<double>>(1,v);
 }
