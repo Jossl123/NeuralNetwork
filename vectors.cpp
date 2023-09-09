@@ -1,7 +1,7 @@
 #include "vectors.hpp"
 std::vector<double> subtract(std::vector<double> v1,std::vector<double> v2){
     if (v1.size() != v2.size()) {
-        std::cerr << "[ERROR] v1 and v2 vectors have different sizes\n";
+        std::cerr << "[ERROR] v1 and v2 vectors have different sizes (sub) \n";
         exit(1);
     }
     std::vector<double> res(v1.size(),0);
@@ -29,7 +29,27 @@ float sum(std::vector<double> v1){
 }
 std::vector<std::vector<double>> multiply(std::vector<std::vector<double>> v1,std::vector<std::vector<double>> v2){
     if (v1[0].size() != v2.size()) {
-        std::cerr << "[ERROR] v1 and v2 vectors have different sizes\n";
+        std::cerr << "[ERROR] v1 and v2 vectors have different sizes (mult) \n";
+        for (int i = 0; i < v1.size(); i++)
+        {
+            for (int y = 0; y < v1[i].size(); y++)
+            {
+                std::cout << v1[i][y];
+                std::cout << ",";
+            }
+            std::cout << "\n";
+        }
+        
+        for (int i = 0; i < v2.size(); i++)
+        {
+            for (int y = 0; y < v2[i].size(); y++)
+            {
+                std::cout << v2[i][y];
+                std::cout << ",";
+            }
+            std::cout << "\n";
+        }
+        
         exit(1);
     }
     std::vector<std::vector<double>> res(v1.size(), std::vector<double>(v2[0].size(), 0));

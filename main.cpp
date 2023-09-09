@@ -4,20 +4,22 @@
 using namespace std;
 
 int main(int argc, char *argv[]) {
-    NeuralNetwork network(1,1, std::vector<int>{1});
+    NeuralNetwork network(9,9, std::vector<int>{4});
 
     std::vector<std::vector<double>> data;
     std::vector<std::vector<double>> results;
 
-    for (int i = 0; i < 4; i++)
+    for (int i = 0; i < 9; i++)
     {
-        std::vector<double> d(1, i);
-        std::vector<double> r(1, (i*3 + 1)*4+2);
+        std::vector<double> d(9, 0);
+        d[0]=1;
+        std::vector<double> r(9, 0);
+        r[0]=1;
         data.push_back(d);
         results.push_back(r);
     }
-
-    network.train(data, results, 1001);
+    
+    network.train(data, results,1000001);
     
     return 0;
 }
