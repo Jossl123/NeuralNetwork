@@ -57,37 +57,76 @@ NeuralNetwork::NeuralNetwork(int inputCount, int outputCount, std::vector<int> h
 }
 
 std::vector<double> NeuralNetwork::forward(std::vector<double> X){
-    if (X.size() != inputs){ std::cout << "[ERROR] inputs number are different"; exit(0); }std::vector<double> current_layer = X;
+    if (X.size() != inputs){ 
+        std::cout << "[ERROR] inputs number are different"; 
+        exit(0);
+    }
+    std::vector<double> current_layer = X;
     for (int i = 0; i < weights.size(); i++){
         current_layer = forward_layer(current_layer, weights[i], bias[i]);
-        if (i<weights.size()-1){ for (int j = 0; j < current_layer.size(); j++){
-            current_layer[j] = activation(current_layer[j]);}} 
-            prev_outputs[i] = current_layer; }return current_layer;}
+        if (i<weights.size()-1){ 
+            for (int j = 0; j < current_layer.size(); j++){
+                current_layer[j] = activation(current_layer[j]);
+            }
+        } 
+        prev_outputs[i] = current_layer; 
+    }return current_layer;
+}
+
 void NeuralNetwork::backward(std::vector<double> data, std::vector<double> output, std::vector<double> output_intended) {
-    if (output.size() != output_intended.size()) { std::cerr << "[ERROR] Output and intended vectors have different sizes\n"; exit(1); }
-    int m = output.size(); std::vector<std::vector<double>> dz = onedTo2d(subtract(output, output_intended));
-    for (int layer_index = weights.size() - 1; layer_index >= 0; layer_index--) {   
+    if (output.size() != output_intended.size()) { 
+        std::cerr << "[ERROR] Output and intended vectors have different sizes\n"; 
+        exit(1); 
+    }
+    int m = output.size(); 
+    std::vector<std::vector<double>> dz = onedTo2d(subtract(output, output_intended));
+    for (int layer_index = weights.size() - 1; layer_index >= 0; layer_index--) { 
         std::vector<std::vector<double>> dw(weights[layer_index].size(), std::vector<double>(weights[layer_index][0].size(), 0.0));
         std::vector<double> db(weights[layer_index].size(), 0.0);
-        for (int i = 0; i < m; i++) { for (int j = 0; j < weights[layer_index].size(); j++) { for (int k = 0; k < weights[layer_index][j].size(); k++) {
-                dw[j][k] += dz[i][j] * prev_outputs[layer_index][i] * data[k];}
-            db[j] += dz[i][j];}
+        for (int i = 0; i < m; i++) { 
+            for (int j = 0; j < weights[layer_index].size(); j++) { 
+                for (int k = 0; k < weights[layer_index][j].size(); k++) {
+                    dw[j][k] += dz[i][j] * prev_outputs[layer_index][i] * data[k];
+                }
+                db[j] += dz[i][j];
+            }
         }
-        for (int i = 0; i < weights[layer_index].size(); i++) {for (int j = 0; j < weights[layer_index][i].size(); j++) {
-                weights[layer_index][i][j] -= learning_rate * (dw[i][j] / m);}
+        for (int i = 0; i < weights[layer_index].size(); i++) {
+            for (int j = 0; j < weights[layer_index][i].size(); j++) {
+                weights[layer_index][i][j] -= learning_rate * (dw[i][j] / m);
+            }
             bias[layer_index][i] -= learning_rate * (db[i] / m);
-        } if (layer_index > 0) {
-            std::vector<std::vector<double>> a = transpose(weights[layer_index]); dz = multiply(a, dz);
-            for (int i = 0; i < m; i++) { for (int j = 0; j < dz[i].size(); j++) {
-                    dz[i][j] *= derive_activation(prev_outputs[layer_index - 1][i]);}}}}}
+        } 
+        if (layer_index > 0) {
+            std::vector<std::vector<double>> a = transpose(weights[layer_index]); 
+            dz = multiply(a, dz);
+            for (int i = 0; i < m; i++) { 
+                for (int j = 0; j < dz[i].size(); j++) {
+                    dz[i][j] *= derive_activation(prev_outputs[layer_index - 1][i]);
+                }
+            }
+        }
+    }
+}
+
 std::vector<double> NeuralNetwork::softmax(std::vector<double> X) {
-    std::vector<double> res; double sum = 0; int size = X.size();
+    std::vector<double> res; 
+    double sum = 0; 
+    int size = X.size();
     for (int i = 0; i < size; i++) sum += exp(X[i]);
-    for (int i = 0; i < size; i++) res.push_back(exp(X[i]) / sum); return res;}
+    for (int i = 0; i < size; i++) res.push_back(exp(X[i]) / sum); 
+    return res;
+}
+
 std::vector<double> NeuralNetwork::forward_layer(std::vector<double> X, std::vector<std::vector<double>> w, std::vector<double> b){
-    std::vector<double> next_layer;for (int j = 0; j < w.size(); j++){double n = b[j];
-    for (int k = 0; k < w[j].size(); k++){
-            n += X[j] * w[j][k];}next_layer.push_back(n);}
+    std::vector<double> next_layer;
+    for (int j = 0; j < w.size(); j++){
+        double n = b[j];
+        for (int k = 0; k < w[j].size(); k++){
+            n += X[j] * w[j][k];
+        }
+        next_layer.push_back(n);
+    }
     return next_layer;
 }
 
@@ -151,7 +190,6 @@ void NeuralNetwork::train(std::vector<std::vector<double>> data, std::vector<std
             std::cout << i;
         }
         double cum_error = 0;
-
 
         for (int j = 0; j < data.size(); j++)
         {

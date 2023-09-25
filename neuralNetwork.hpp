@@ -14,7 +14,7 @@ void display(std::vector<double> t);
 class NeuralNetwork {
 public:
     int inputs, output_nb;
-    float learning_rate = 0.0000001;
+    float learning_rate = 0.00001;
     std::vector<std::vector<std::vector<double>>> weights;
     std::vector<std::vector<double>> bias;
     std::vector<std::vector<double>> prev_outputs;
