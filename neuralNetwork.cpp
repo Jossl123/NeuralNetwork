@@ -70,7 +70,7 @@ std::vector<double> NeuralNetwork::forward(std::vector<double> X){
             }
         } 
         prev_outputs[i] = current_layer; 
-    }return current_layer;
+    }return softmax(current_layer);
 }
 
 void NeuralNetwork::backward(std::vector<double> data, std::vector<double> output, std::vector<double> output_intended) {
@@ -86,6 +86,7 @@ void NeuralNetwork::backward(std::vector<double> data, std::vector<double> outpu
         for (int i = 0; i < m; i++) { 
             for (int j = 0; j < weights[layer_index].size(); j++) { 
                 for (int k = 0; k < weights[layer_index][j].size(); k++) {
+                    //dz is a 1d like array so why ??
                     dw[j][k] += dz[i][j] * prev_outputs[layer_index][i] * data[k];
                 }
                 db[j] += dz[i][j];
